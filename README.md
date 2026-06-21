@@ -744,21 +744,22 @@ Lihat file [LICENSE](LICENSE) untuk detail lengkap.
 
 ## 📞 Kontak & Jejaring
 
-- 🌐 **Website**: [eduips.site](https://eduips.site)
-- 📧 **Email**: contact@eduips.site
+- 🌐 **Website**: [Catatan Guru IPS](https://toer.my.id)
+- 📧 **Email**: pamungkazcatur@gmail.com
 - 🐙 **GitHub**: [@kangtoer](https://github.com/kangtoer)
-- 🐦 **Twitter/X**: [@eduips_id](https://twitter.com/eduips_id)
-- 💼 **LinkedIn**: [EduIPS Organization](https://linkedin.com/company/eduips)
+- 🐦 **Twitter/X**: [@kangtoer](https://x.com/kangtoer)
 
 ---
 
 ## 🙏 Ucapan Terima Kasih
 
 Terima kasih kepada:
-- **Guru IPS Indonesia** atas inspirasi dan feedback berharga
+- **Guru IPS Seluruh Indonesia** atas inspirasi dan feedback berharga
+- **MGMP IPS SMP Kabupaten Kebumen** atas kesempatan yang diberikan untuk terus berkembang
 - **Google** untuk Gemini AI, Firebase, dan Google Workspace APIs
 - **Tailwind CSS** dan **FontAwesome** untuk komponen UI
 - **Open-source community** atas dukungan berkelanjutan
+- **Istri dan Anakku** karena demi ngoprek ini, waktuku bersama kalian harus disarutang
 
 ---
 
@@ -815,4 +816,4 @@ Lihat [CHANGELOG.md](CHANGELOG.md) untuk detail perubahan setiap versi.
 
 **Dibuat dengan ❤️ untuk pendidikan Indonesia yang lebih baik.**
 
-*Last Updated: 2025-06 | Versi: 1.0.0*
+*Last Updated: 2026-06 | Versi: 1.0.0*
