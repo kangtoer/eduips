@@ -523,11 +523,11 @@ artifacts/
 
 **Endpoint:**
 ```
-https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key={API_KEY}
+https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2026:generateContent?key={API_KEY}
 ```
 
 **Model:**
-- `gemini-2.5-flash-preview-09-2025` (default untuk EduIPS)
+- `gemini-2.5-flash-preview-09-2026` (default untuk EduIPS)
 
 **Request Format:**
 ```javascript
@@ -673,7 +673,7 @@ EduIPS dirilis di bawah lisensi **MIT License**.
 ```
 MIT License
 
-Copyright (c) 2025 Kangtoer & EduIPS Contributors
+Copyright (c) 2026 Kangtoer & EduIPS Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -801,7 +801,7 @@ git push
 
 ## 📜 Perubahan & Riwayat Versi
 
-### v1.0.0 (2025)
+### v1.0.0 (2026)
 - ✨ Release awal EduIPS
 - 🎯 Generator RPP-PM dengan 8 Dimensi Profil Lulusan
 - 🧠 Bank Soal TKA berkualitas tinggi
