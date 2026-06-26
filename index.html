@@ -240,10 +240,15 @@
                 </div>
             </nav>
             
-            <div class="p-4 border-t border-slate-200 bg-slate-50/50">
-                <button id="btn-logout" class="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-500 hover:bg-red-50 active:scale-98 transition font-bold text-sm">
+            <!-- Sidebar Footer with Copyright Key (Catur Pamungkas, S.Pd.,Gr.)[toer.my.id] -->
+            <div class="p-4 border-t border-slate-200 bg-slate-50/50 flex flex-col gap-2">
+                <button id="btn-logout" class="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-red-500 hover:bg-red-50 active:scale-98 transition font-bold text-sm">
                     <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Keluar Akun
                 </button>
+                <div class="text-center text-[10px] text-slate-400 font-semibold tracking-wide">
+                    &copy; 2026 EduIPS Portal.<br>
+                    Pengembang: <a href="https://toer.my.id" target="_blank" class="text-primary hover:underline font-bold">Catur Pamungkas, S.Pd.,Gr.</a>
+                </div>
             </div>
         </aside>
 
@@ -625,7 +630,7 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-600 mb-1">Cakupan Materi</label>
-                                    <textarea id="soal-topik" rows="3" placeholder="Contoh: Kegiatan Ekonomi & Pasar Bebas..." class="w-full border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-accent focus:border-accent outline-none transition resize-none text-sm"></textarea>
+                                    <textarea id="soal-topik" rows="3" placeholder="Contoh: Kegiatan Ekonomi & Pasar Bebas..." class="w-full border-slate-300 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-accent focus:border-accent outline-none transition resize-none text-sm"></textarea>
                                 </div>
 
                                 <div>
@@ -1050,7 +1055,7 @@
                                         </thead>
                                         <tbody id="mutasi-list-body" class="divide-y divide-slate-100 text-slate-750">
                                             <tr>
-                                                <td colspan="5" class="p-4 text-center text-slate-400">Belum ada pencatatan data log mutasi siswa.</td>
+                                                <td colspan="6" class="p-4 text-center text-slate-400">Belum ada pencatatan data log mutasi siswa.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1262,7 +1267,7 @@
                     <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 mb-6 shadow-md text-white flex items-center gap-4">
                         <div class="text-3xl opacity-80"><i class="fa-solid fa-users-gear"></i></div>
                         <div>
-                            <h3 class="font-bold text-lg">Direktori Tenaga Pendidik</h3>
+                            <h3 class="font-bold text-xl">Direktori Tenaga Pendidik</h3>
                             <p class="text-amber-100 text-xs">Pemantauan massal akun guru terdaftar pada ekosistem EduIPS.</p>
                         </div>
                     </div>
@@ -1302,7 +1307,7 @@
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global State & Fallback Engine Flags
+        // Global State & Fallback Engine Flags (Declaring securely with `let` to prevent assignment to constant error)
         let isFirebaseActive = false;
         let db = null;
         let auth = null;
@@ -1455,8 +1460,8 @@
             }
             try {
                 const app = initializeApp(config);
-                auth = getAuth(app);
-                db = getFirestore(app);
+                auth = getAuth(app); // Safe re-assignment to outer-scope variables
+                db = getFirestore(app); // Safe re-assignment to outer-scope variables
                 isFirebaseActive = true;
                 
                 onAuthStateChanged(auth, async (user) => {
@@ -1522,6 +1527,7 @@
 
         tryInitializeFirebase();
 
+        // --- SINKRONISASI AKUN DAN GOOGLE DRIVE ---
         const btnGoogleLogin = document.getElementById('btn-login-google');
         if (btnGoogleLogin) {
             btnGoogleLogin.addEventListener('click', () => { 
@@ -1649,7 +1655,7 @@
                 statusIndicator.classList.add('hidden');
                 if (gdriveStatusVal) gdriveStatusVal.innerText = "Draf Lokal";
                 gdriveText.innerText = "Sistem saat ini menyimpan secara offline di browser ini.";
-                gdriveAction.innerHTML = `<button type="button" id="btn-connect-gdrive" class="text-xs font-bold text-white bg-green-600 hover:bg-green-700 px-4 py-1.5 rounded-xl shadow-sm transition"><i class="fa-brands fa-google-drive mr-1"></i>Hubungkan G-Drive</button>`;
+                gdriveAction.innerHTML = `<button type="button" id="btn-connect-gdrive" class="text-xs font-bold text-white bg-green-600 hover:bg-green-700 px-4 py-1.5 rounded-lg shadow-sm transition"><i class="fa-brands fa-google-drive mr-1"></i>Hubungkan G-Drive</button>`;
                 dashDriveTitle.innerText = "Penyimpanan Offline (Draf Lokal)";
                 dashDriveDesc.innerText = "Silakan hubungkan akun Google Workspace Anda untuk fitur otomatisasi database.";
                 
@@ -2056,7 +2062,7 @@
             });
         }
 
-        // --- NEW: MUTASI SISWA EVENT & RENDER ---
+        // --- MUTASI SISWA EVENT & RENDER ---
         const mutasiForm = document.getElementById('mutasi-form');
         if (mutasiForm) {
             mutasiForm.addEventListener('submit', async (e) => {
@@ -2582,7 +2588,7 @@
                 ui.ai.outputKktp.innerHTML = `<div class="markdown-body">${DOMPurify.sanitize(marked.parse(md))}</div>`;
                 showToast("KKTP Berhasil Disusun!", "success");
             } catch (e) {
-                ui.ai.outputKktp.innerHTML = `<p class="text-red-600 font-bold p-4">Error: ${e.message}</p>`;
+                ui.ai.outputKktp.innerHTML = `<p class="text-red-650 font-bold p-4">Error: ${e.message}</p>`;
             } finally {
                 btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Susun KKTP Sekolah';
             }
@@ -2820,9 +2826,13 @@
                         </div>
                         <div class="ttd-box">
                             Tempat, ${tgl}<br>Guru Mata Pelajaran IPS<br>
-                            <p class="text-align: center; font-weight: bold; margin-top: 80px; margin-bottom: 0;">${userProfile.nama || 'Nama Guru'}</p>
-                            <p class="text-align: center; margin-top: 2px;">NIP. ${userProfile.nip || '........................................'}</p>
+                            <p class="ttd-name" style="font-weight: bold; text-decoration: underline; margin-top: 80px; margin-bottom: 0;">${userProfile.nama || 'Nama Guru'}</p>
+                            <p class="ttd-nip" style="margin-top: 2px;">NIP. ${userProfile.nip || '........................................'}</p>
                         </div>
+                    </div>
+                    <!-- Copyright Stamp on Print -->
+                    <div style="margin-top: 40px; text-align: center; font-size: 7.5pt; color: #888; border-top: 1px dashed #ccc; padding-top: 8px; page-break-inside: avoid;">
+                        Sistem EduIPS &copy; 2026. Hak Cipta dilindungi undang-undang oleh Pengembang: Catur Pamungkas, S.Pd.,Gr. (toer.my.id)
                     </div>
                 </div>
                 <script> window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 500); } <\/script>
