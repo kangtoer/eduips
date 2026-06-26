@@ -98,11 +98,11 @@
                 Masuk & Sinkronkan Drive
             </button>
             <button id="btn-login-anon" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-900 active:scale-98 transition duration-150 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-user-secret"></i> Masuk Tanpa Akun (Draf Lokal)
+                <i class="fa-solid fa-user-secret"></i> Masuk Tanpa Akun (Sesi Lokal)
             </button>
             
             <div id="login-loading" class="hidden mt-4 text-primary font-medium text-sm">
-                <div class="loader mr-2"></div> Menghubungkan jaringan cloud...
+                <div class="loader mr-2"></div> Menghubungkan sistem cloud...
             </div>
         </div>
     </div>
@@ -246,6 +246,12 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
+                    <!-- Status Database Connection Badge -->
+                    <div id="db-status-badge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border">
+                        <span class="w-2 h-2 rounded-full inline-block" id="db-status-dot"></span>
+                        <span id="db-status-text">Memeriksa...</span>
+                    </div>
+
                     <!-- Google Drive Status Indicator -->
                     <div id="drive-status" class="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold">
                         <i class="fa-brands fa-google-drive"></i> Workspace Active
@@ -599,7 +605,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-600 mb-1">Format Penyajian Bahan</label>
-                                    <select id="bahan-format" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-purple-600 outline-none transition text-sm">
+                                    <select id="bahan-format" class="w-full border-2 border-slate-300 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-purple-600 outline-none transition text-sm">
                                         <option value="Ringkasan Poin (Bullet Points) mudah dihafal">Ringkasan Esensial Poin</option>
                                         <option value="Narasi Deskriptif Lengkap untuk dibaca siswa">Narasi Deskriptif Komprehensif</option>
                                         <option value="Format Tanya Jawab (Q&A / FAQ) interaktif">Format Diskusi Q&A</option>
@@ -792,7 +798,7 @@
                             <div class="overflow-y-auto max-h-[350px] border border-slate-200 rounded-lg divide-y divide-slate-100 no-scrollbar mb-4">
                                 <table class="w-full text-left border-collapse text-xs">
                                     <thead>
-                                        <tr class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
                                             <th class="p-3">Nama Siswa</th>
                                             <th class="p-3 w-20">Formatif</th>
                                             <th class="p-3 w-20">Sumatif</th>
@@ -980,6 +986,13 @@
                                         </div>
                                     </div>
 
+                                    <!-- Custom Firebase Config untuk Host Mandiri (GitHub Pages) -->
+                                    <div class="md:col-span-2 border-t pt-4">
+                                        <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2"><i class="fa-solid fa-cloud text-primary"></i> Konfigurasi Firebase Mandiri (Opsional)</h4>
+                                        <p class="text-xxs text-slate-500 mb-3">Tempelkan objek konfigurasi JSON Firebase Anda untuk mengaktifkan database awan permanen saat di-host sendiri (misalnya di GitHub Pages).</p>
+                                        <textarea id="prof-firebase-config" rows="4" placeholder='{ "apiKey": "...", "authDomain": "...", "projectId": "...", ... }' class="w-full border border-slate-300 rounded-lg p-2 text-xxs font-mono outline-none focus:border-primary resize-y bg-white"></textarea>
+                                    </div>
+
                                     <div class="md:col-span-2">
                                         <label class="flex items-center gap-3 p-4 border border-slate-200 rounded-xl bg-slate-50/50 cursor-pointer hover:bg-slate-100 transition">
                                             <input type="checkbox" id="prof-isadmin" class="w-5 h-5 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2">
@@ -1005,13 +1018,13 @@
                     <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 mb-6 shadow-md text-white flex items-center gap-4">
                         <div class="text-3xl opacity-80"><i class="fa-solid fa-users-gear"></i></div>
                         <div>
-                            <h3 class="font-bold text-xl">Direktori Tenaga Pendidik</h3>
+                            <h3 class="font-bold text-lg">Direktori Tenaga Pendidik</h3>
                             <p class="text-amber-100 text-xs">Pemantauan massal akun guru terdaftar pada ekosistem EduIPS.</p>
                         </div>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
-                        <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                        <div class="p-4 bg-slate-50 border-b border-gray-200 flex justify-between items-center">
                             <h3 class="font-bold text-slate-850 text-sm"><i class="fa-solid fa-table-list mr-2"></i>Daftar Guru Terverifikasi</h3>
                             <button id="btn-refresh-users" class="text-slate-600 bg-white border border-slate-300 hover:bg-gray-100 font-bold py-1.5 px-3 rounded-lg shadow-xs transition text-sm">
                                 <i class="fa-solid fa-rotate-right mr-1"></i> Refresh
@@ -1045,12 +1058,28 @@
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-        let firebaseConfig = {};
-        try { firebaseConfig = JSON.parse(firebaseConfigStr); } catch (e) { console.error("Invalid Firebase config", e); }
+        // Global State & Fallback Engine Flags
+        let isFirebaseActive = false;
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let gdriveToken = null;
+
+        // In-Memory Database Fallback (Mencegah Crash saat dijalankan offline / tanpa konfigurasi Firebase awal)
+        let localJournals = [];
+        let localStudents = [];
+        let localBks = [];
+        let seatAssignments = {};
+        let userProfile = {
+            nama: "Guru IPS",
+            nip: "",
+            sekolah: "MTS / SMP Negeri",
+            isAdmin: false,
+            customApiKey: "",
+            customFirebaseConfig: ""
+        };
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'eduips-default-app';
-        
-        // Gemini API Configuration
         const DEFAULT_AI_MODEL = "gemini-2.5-flash-preview-09-2025";
         let MASTER_API_KEY = ""; 
         
@@ -1058,20 +1087,6 @@
             const finalKey = userKey || MASTER_API_KEY;
             return `https://generativelanguage.googleapis.com/v1beta/models/${DEFAULT_AI_MODEL}:generateContent?key=${finalKey}`;
         };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // State Variables
-        let currentUser = null;
-        let userProfile = {};
-        let gdriveToken = null;
-        let localJournals = [];
-        let localStudents = [];
-        let localBks = [];
-        let seatAssignments = {};
 
         // DOM Elements mapping
         const ui = {
@@ -1093,7 +1108,15 @@
                 adminPanel: document.getElementById('admin-panel-view') 
             },
             nav: { links: document.querySelectorAll('.nav-link'), adminMenu: document.getElementById('admin-menu-item'), headerTitle: document.getElementById('header-title') },
-            profile: { form: document.getElementById('profile-form'), nama: document.getElementById('prof-nama'), nip: document.getElementById('prof-nip'), sekolah: document.getElementById('prof-sekolah'), isAdmin: document.getElementById('prof-isadmin'), customApiKey: document.getElementById('prof-apikey') },
+            profile: { 
+                form: document.getElementById('profile-form'), 
+                nama: document.getElementById('prof-nama'), 
+                nip: document.getElementById('prof-nip'), 
+                sekolah: document.getElementById('prof-sekolah'), 
+                isAdmin: document.getElementById('prof-isadmin'), 
+                customApiKey: document.getElementById('prof-apikey'),
+                customFirebaseConfig: document.getElementById('prof-firebase-config')
+            },
             ai: {
                 btnGenModul: document.getElementById('btn-generate-modul'), btnCopyModul: document.getElementById('btn-copy-modul'), btnPrintModul: document.getElementById('btn-print-modul'), btnGDriveModul: document.getElementById('btn-gdrive-modul'), outputModul: document.getElementById('ai-output-container'),
                 btnGenSoal: document.getElementById('btn-generate-soal'), btnCopySoal: document.getElementById('btn-copy-soal'), btnPrintSoal: document.getElementById('btn-print-soal'), btnGDriveSoal: document.getElementById('btn-gdrive-soal'), outputSoal: document.getElementById('soal-output-container'),
@@ -1111,8 +1134,8 @@
             if(type === 'success') { bgClass = 'bg-green-600'; icon = 'fa-check-circle'; }
             if(type === 'error') { bgClass = 'bg-red-600'; icon = 'fa-circle-exclamation'; }
             if(type === 'gdrive') { bgClass = 'bg-emerald-600'; icon = 'fa-brands fa-google-drive'; }
-            toast.className = `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 fade-in max-w-sm z-50`;
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="text-sm font-bold">${message}</span>`;
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 fade-in max-w-sm z-50`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="text-xs font-bold">${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'all 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 4000);
         }
@@ -1135,55 +1158,173 @@
             if(targetId === 'denah-kelas-view') renderDenahGrid();
         }
 
-        // Authentication & Profile Data Logic (MANDATORY RULE 3 COMPLIANT)
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                ui.views.login.classList.add('hidden'); ui.views.main.classList.remove('hidden');
-                await loadUserProfile(); 
-                switchView('dashboard-view');
-            } else {
-                currentUser = null; userProfile = {}; gdriveToken = null;
-                ui.views.login.classList.remove('hidden'); ui.views.main.classList.add('hidden');
-                document.getElementById('drive-status').classList.add('hidden');
-            }
-        });
-
-        const provider = new GoogleAuthProvider();
-        provider.addScope('https://www.googleapis.com/auth/drive.file');
-
-        document.getElementById('btn-login-google').addEventListener('click', () => { 
-            document.getElementById('login-loading').classList.remove('hidden'); 
-            signInWithPopup(auth, provider).then((res) => {
-                const credential = GoogleAuthProvider.credentialFromResult(res);
-                if (credential && credential.accessToken) {
-                    gdriveToken = credential.accessToken;
-                    localStorage.setItem('gdrive_user_token', gdriveToken);
+        // --- DYNAMIC FIREBASE LOADER & IN-MEMORY ENGINE FALLBACK ---
+        function getActiveConfig() {
+            // Cek lokal penyimpanan untuk konfigurasi kustom guru (prioritas tinggi saat di-host sendiri)
+            const localSavedConfig = localStorage.getItem('eduips_custom_firebase_config');
+            if (localSavedConfig) {
+                try {
+                    return JSON.parse(localSavedConfig);
+                } catch(e) {
+                    console.error("Gagal mem-parsing konfigurasi Firebase lokal");
                 }
-            }).catch(e => {
-                showToast("Gagal masuk dengan Google: " + e.message, "error");
-                document.getElementById('login-loading').classList.add('hidden');
-            }); 
-        });
+            }
 
-        document.getElementById('btn-login-anon').addEventListener('click', () => { 
-            document.getElementById('login-loading').classList.remove('hidden'); 
-            signInAnonymously(auth).catch(e => {
-                showToast(e.message, "error");
-                document.getElementById('login-loading').classList.add('hidden');
-            }); 
-        });
+            // Jika tidak ada, gunakan injeksi sistem bawaan platform
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config && __firebase_config !== '{}') {
+                    return JSON.parse(__firebase_config);
+                }
+            } catch(e) {
+                console.error("Gagal mem-parsing konfigurasi sistem bawaan");
+            }
 
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            localStorage.removeItem('gdrive_user_token');
-            signOut(auth);
-        });
+            return null;
+        }
 
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) signInWithCustomToken(auth, __initial_auth_token).catch(e=>console.log("No custom token fallback"));
+        function updateDatabaseStatusUI() {
+            const dot = document.getElementById('db-status-dot');
+            const text = document.getElementById('db-status-text');
+            const badge = document.getElementById('db-status-badge');
+
+            if (isFirebaseActive) {
+                dot.className = "w-2.5 h-2.5 rounded-full inline-block bg-emerald-500 animate-pulse";
+                text.innerText = "Awan Aktif (Firebase)";
+                badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-emerald-200 bg-emerald-50 text-emerald-800";
+            } else {
+                dot.className = "w-2.5 h-2.5 rounded-full inline-block bg-amber-500 animate-pulse";
+                text.innerText = "Sesi Lokal (Offline)";
+                badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-amber-200 bg-amber-50 text-amber-800";
+            }
+        }
+
+        async function tryInitializeFirebase() {
+            const config = getActiveConfig();
+            
+            if (!config || !config.apiKey) {
+                console.warn("Konfigurasi Firebase tidak terdeteksi. Beralih ke mesin Sesi Lokal.");
+                setupLocalFallbackEngine();
+                return;
+            }
+
+            try {
+                const app = initializeApp(config);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                isFirebaseActive = true;
+                
+                // Mulai pendengar status otentikasi Firebase
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        ui.views.login.classList.add('hidden'); 
+                        ui.views.main.classList.remove('hidden');
+                        await loadUserProfile(); 
+                        switchView('dashboard-view');
+                    } else {
+                        currentUser = null; 
+                        userProfile = {
+                            nama: "Guru IPS",
+                            nip: "",
+                            sekolah: "MTS / SMP Negeri",
+                            isAdmin: false,
+                            customApiKey: "",
+                            customFirebaseConfig: ""
+                        }; 
+                        gdriveToken = null;
+                        ui.views.login.classList.remove('hidden'); 
+                        ui.views.main.classList.add('hidden');
+                        document.getElementById('drive-status').classList.add('hidden');
+                    }
+                    updateDatabaseStatusUI();
+                });
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    signInWithCustomToken(auth, __initial_auth_token).catch(e => console.log("Gagal login dengan token custom"));
+                }
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                setupLocalFallbackEngine();
+            }
+        }
+
+        // Jalankan Sesi Lokal apabila dijalankan offline/tanpa server awan
+        function setupLocalFallbackEngine() {
+            isFirebaseActive = false;
+            updateDatabaseStatusUI();
+            
+            // Cek lokal penyimpanan offline untuk memulihkan draf sesi kerja sebelumnya
+            try {
+                const localProfileBackup = localStorage.getItem('eduips_local_profile_data');
+                if (localProfileBackup) {
+                    userProfile = JSON.parse(localProfileBackup);
+                    localJournals = userProfile.journals || [];
+                    localStudents = userProfile.students || [];
+                    localBks = userProfile.bks || [];
+                    seatAssignments = userProfile.seats || {};
+                }
+            } catch(e) {
+                console.error("Gagal memuat cadangan lokal offline", e);
+            }
+
+            // Tampilkan antarmuka utama secara langsung (Lewati layar login Firebase)
+            ui.views.login.classList.add('hidden');
+            ui.views.main.classList.remove('hidden');
+            
+            updateProfileUI();
+            renderJournalTable();
+            renderSiswaTable();
+            syncDashboardStates();
+            
+            showToast("Mode Sesi Lokal Aktif. Data disimpan sementara di peramban ini.", "warning");
+        }
+
+        // Jalankan inisialisasi awal saat halaman dimuat
+        tryInitializeFirebase();
+
+
+        // --- DOCKING SINKRONISASI AKUN DAN GOOGLE DRIVE ---
+        const btnGoogleLogin = document.getElementById('btn-login-google');
+        if (btnGoogleLogin) {
+            btnGoogleLogin.addEventListener('click', () => { 
+                if (!isFirebaseActive) {
+                    showToast("Sistem awan belum aktif. Silakan hubungkan Firebase Anda terlebih dahulu di menu Profil.", "error");
+                    return;
+                }
+                document.getElementById('login-loading').classList.remove('hidden'); 
+                signInWithPopup(auth, provider).then((res) => {
+                    const credential = GoogleAuthProvider.credentialFromResult(res);
+                    if (credential && credential.accessToken) {
+                        gdriveToken = credential.accessToken;
+                        localStorage.setItem('gdrive_user_token', gdriveToken);
+                    }
+                }).catch(e => {
+                    showToast("Gagal masuk dengan Google: " + e.message, "error");
+                    document.getElementById('login-loading').classList.add('hidden');
+                }); 
+            });
+        }
+
+        const btnAnonLogin = document.getElementById('btn-login-anon');
+        if (btnAnonLogin) {
+            btnAnonLogin.addEventListener('click', () => { 
+                if (isFirebaseActive) {
+                    document.getElementById('login-loading').classList.remove('hidden'); 
+                    signInAnonymously(auth).catch(e => {
+                        showToast(e.message, "error");
+                        document.getElementById('login-loading').classList.add('hidden');
+                    }); 
+                } else {
+                    setupLocalFallbackEngine();
+                }
+            });
+        }
 
         async function loadUserProfile() {
+            if (!isFirebaseActive || !currentUser) return;
+
             const userId = currentUser.uid;
-            // Rule 1: Strict paths (even number segments - 6 segments)
             const privateRef = doc(db, 'artifacts', appId, 'users', userId, 'profileData', 'default');
             try {
                 const docSnap = await getDoc(privateRef);
@@ -1196,6 +1337,7 @@
                         sekolah: "MTS / SMP Negeri", 
                         isAdmin: false,
                         customApiKey: "",
+                        customFirebaseConfig: localStorage.getItem('eduips_custom_firebase_config') || "",
                         journals: [],
                         students: [],
                         bks: [],
@@ -1205,7 +1347,6 @@
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userId), { nama: userProfile.nama, nip: userProfile.nip, sekolah: userProfile.sekolah, role: 'Guru' });
                 }
                 
-                // Load local arrays from profile if any, or defaults
                 localJournals = userProfile.journals || [];
                 localStudents = userProfile.students || [];
                 localBks = userProfile.bks || [];
@@ -1217,7 +1358,11 @@
                 renderJournalTable();
                 renderSiswaTable();
                 syncDashboardStates();
-            } catch (error) { console.error(error); showToast("Gagal memuat profil", "error"); }
+            } catch (error) { 
+                console.error(error); 
+                showToast("Gagal memuat profil awan. Beralih ke penyimpanan lokal.", "error"); 
+                setupLocalFallbackEngine();
+            }
         }
 
         function updateProfileUI() {
@@ -1226,6 +1371,7 @@
             ui.profile.sekolah.value = userProfile.sekolah || ''; 
             ui.profile.isAdmin.checked = userProfile.isAdmin || false;
             ui.profile.customApiKey.value = userProfile.customApiKey || '';
+            ui.profile.customFirebaseConfig.value = userProfile.customFirebaseConfig || localStorage.getItem('eduips_custom_firebase_config') || '';
 
             const name = userProfile.nama || "Guru Pengguna";
             document.getElementById('user-display-name').innerText = name; 
@@ -1270,19 +1416,26 @@
                 dashDriveTitle.innerText = "Penyimpanan Offline (Draf Lokal)";
                 dashDriveDesc.innerText = "Silakan hubungkan akun Google Workspace Anda untuk fitur otomatisasi database.";
                 
-                document.getElementById('btn-connect-gdrive').addEventListener('click', () => {
-                    const prov = new GoogleAuthProvider();
-                    prov.addScope('https://www.googleapis.com/auth/drive.file');
-                    signInWithPopup(auth, prov).then((res) => {
-                        const credential = GoogleAuthProvider.credentialFromResult(res);
-                        if (credential && credential.accessToken) {
-                            gdriveToken = credential.accessToken;
-                            localStorage.setItem('gdrive_user_token', gdriveToken);
-                            updateProfileUI();
-                            showToast("Google Drive sukses dihubungkan!", "success");
+                const btnConnGDrive = document.getElementById('btn-connect-gdrive');
+                if (btnConnGDrive) {
+                    btnConnGDrive.addEventListener('click', () => {
+                        const prov = new GoogleAuthProvider();
+                        prov.addScope('https://www.googleapis.com/auth/drive.file');
+                        if (isFirebaseActive) {
+                            signInWithPopup(auth, prov).then((res) => {
+                                const credential = GoogleAuthProvider.credentialFromResult(res);
+                                if (credential && credential.accessToken) {
+                                    gdriveToken = credential.accessToken;
+                                    localStorage.setItem('gdrive_user_token', gdriveToken);
+                                    updateProfileUI();
+                                    showToast("Google Drive sukses dihubungkan!", "success");
+                                }
+                            }).catch(e => showToast("Koneksi gagal: " + e.message, "error"));
+                        } else {
+                            showToast("Silakan atur Firebase Config Anda terlebih dahulu di bawah untuk menghubungkan Google Drive.", "warning");
                         }
-                    }).catch(e => showToast("Koneksi gagal: " + e.message, "error"));
-                });
+                    });
+                }
             }
         }
 
@@ -1290,22 +1443,46 @@
             e.preventDefault();
             const btn = document.getElementById('btn-save-profile'); btn.disabled = true; btn.innerHTML = '<div class="loader"></div>';
             
+            const rawFirebaseVal = ui.profile.customFirebaseConfig.value.trim();
+            if (rawFirebaseVal) {
+                localStorage.setItem('eduips_custom_firebase_config', rawFirebaseVal);
+            } else {
+                localStorage.removeItem('eduips_custom_firebase_config');
+            }
+
             const updated = { 
                 nama: ui.profile.nama.value, 
                 nip: ui.profile.nip.value, 
                 sekolah: ui.profile.sekolah.value, 
                 isAdmin: ui.profile.isAdmin.checked,
-                customApiKey: ui.profile.customApiKey.value.trim()
+                customApiKey: ui.profile.customApiKey.value.trim(),
+                customFirebaseConfig: rawFirebaseVal
             };
-            const userId = currentUser.uid;
             
             try {
-                await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'profileData', 'default'), updated, { merge: true });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userId), { nama: updated.nama, nip: updated.nip, sekolah: updated.sekolah, role: updated.isAdmin ? 'Admin' : 'Guru' }, { merge: true });
+                if (isFirebaseActive && currentUser) {
+                    const userId = currentUser.uid;
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'profileData', 'default'), updated, { merge: true });
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userId), { nama: updated.nama, nip: updated.nip, sekolah: updated.sekolah, role: updated.isAdmin ? 'Admin' : 'Guru' }, { merge: true });
+                } else {
+                    // Update ke memori sesi lokal offline
+                    userProfile = { ...userProfile, ...updated };
+                    userProfile.journals = localJournals;
+                    userProfile.students = localStudents;
+                    userProfile.bks = localBks;
+                    userProfile.seats = seatAssignments;
+                    localStorage.setItem('eduips_local_profile_data', JSON.stringify(userProfile));
+                }
                 
                 userProfile = { ...userProfile, ...updated }; 
                 updateProfileUI(); 
-                showToast("Profil & Kunci API privat berhasil diperbarui", "success");
+                showToast("Pengaturan berhasil disimpan!", "success");
+                
+                // Minta reload jika mengganti file config firebase agar dapat diinisialisasi ulang
+                if (rawFirebaseVal) {
+                    showToast("Konfigurasi Firebase berubah. Memuat ulang sistem...", "info");
+                    setTimeout(() => window.location.reload(), 1500);
+                }
             } catch (e) { 
                 showToast("Gagal menyimpan profil", "error"); 
             } finally { 
@@ -1315,7 +1492,7 @@
 
         // Admin Directory Management
         async function loadAdminUsers() {
-            if (!userProfile.isAdmin) return;
+            if (!isFirebaseActive || !userProfile.isAdmin) return;
             const list = document.getElementById('admin-users-list'); list.innerHTML = '<tr><td colspan="4" class="p-4 text-center"><div class="loader border-t-amber-500"></div></td></tr>';
             try {
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'users'));
@@ -1327,7 +1504,11 @@
                 });
             } catch (e) { list.innerHTML = '<tr><td colspan="4" class="p-4 text-red-500 text-center">Gagal memuat.</td></tr>'; }
         }
-        document.getElementById('btn-refresh-users').addEventListener('click', loadAdminUsers);
+        
+        const btnRefUsers = document.getElementById('btn-refresh-users');
+        if (btnRefUsers) {
+            btnRefUsers.addEventListener('click', loadAdminUsers);
+        }
 
 
         // --- JURNAL KELAS & DATA SISWA IMPLEMENTATIONS (NEW & INTEGRATED) ---
@@ -1496,22 +1677,30 @@
             printWin.document.close();
         });
 
-        // Save data local to user Profile
+        // Save data local to user Profile / LocalStorage backup
         async function saveLocalData() {
-            if(!currentUser) return;
-            const userId = currentUser.uid;
-            const privateRef = doc(db, 'artifacts', appId, 'users', userId, 'profileData', 'default');
-            try {
-                await setDoc(privateRef, {
-                    journals: localJournals,
-                    students: localStudents,
-                    bks: localBks,
-                    seats: seatAssignments
-                }, { merge: true });
-                syncDashboardStates();
-            } catch (e) {
-                console.error("Gagal save lokal database", e);
+            if (isFirebaseActive && currentUser) {
+                const userId = currentUser.uid;
+                const privateRef = doc(db, 'artifacts', appId, 'users', userId, 'profileData', 'default');
+                try {
+                    await setDoc(privateRef, {
+                        journals: localJournals,
+                        students: localStudents,
+                        bks: localBks,
+                        seats: seatAssignments
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("Gagal save lokal database", e);
+                }
+            } else {
+                // Simpan offline ke localStorage
+                userProfile.journals = localJournals;
+                userProfile.students = localStudents;
+                userProfile.bks = localBks;
+                userProfile.seats = seatAssignments;
+                localStorage.setItem('eduips_local_profile_data', JSON.stringify(userProfile));
             }
+            syncDashboardStates();
         }
 
 
@@ -1744,7 +1933,7 @@
                         <label class="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded cursor-pointer border border-blue-250">
                             <input type="radio" name="absen-${s.id}" value="I" class="text-blue-500 focus:ring-blue-500"> I
                         </label>
-                        <label class="flex items-center gap-1 bg-red-50 px-2 py-1 rounded cursor-pointer border border-red-250">
+                        <label class="flex items-center gap-1 bg-red-50 px-2 py-1 rounded cursor-pointer border border-red-200">
                             <input type="radio" name="absen-${s.id}" value="A" class="text-danger focus:ring-danger"> A
                         </label>
                     </div>
@@ -1756,7 +1945,7 @@
         document.getElementById('btn-save-absen').addEventListener('click', () => {
             const kls = document.getElementById('absen-kelas-aktif').value;
             const tgl = document.getElementById('absen-tanggal').value;
-            showToast(`Presensi kelas ${kls} untuk tanggal ${tgl} sukses disimpan lokal!`, "success");
+            showToast(`Presensi kelas ${kls} untuk tanggal ${tgl} sukses disimpan!`, "success");
             if (gdriveToken) uploadDatabaseBackupToDrive();
         });
 
@@ -2114,7 +2303,7 @@
             ui.ai.outputSoal.innerHTML = '<div class="h-64 flex flex-col justify-center items-center text-accent"><div class="loader border-t-accent w-12 h-12 mb-4"></div><p class="font-bold animate-pulse">Meracik Kisi & Butir Soal TKA...</p></div>';
 
             const prompt = `Buat dokumen Kisi-kisi Evaluasi dan Instrumen Bank Soal IPS tingkat SMP.
-            WAJIB terapkan prinsip "Pendekatan Mendalam (RPP-PM)" dalam penyelarasan istilah dan konsep evaluasi.
+            WAJIB terapkan prinsip "Pendekatan Mendalam (RPP-PM)" dalam penyelarasan istilah and konsep evaluasi.
             Materi: ${topik}. Spesifikasi: ${jumlah} Soal Pilihan Ganda dan 3 Soal Uraian. Tipe kognitif: ${tipe}.
             
             PERSYARATAN UTAMA (WAJIB):
